@@ -26,6 +26,12 @@ defmodule MexTest do
 
   test "Mex can set_width of output" do
     assert :ok = Mex.set_width 100
+
+    import Mex
+    require Integer
+    
+    mex 3 do Integer.is_odd(3) end
+    
   end
 
 end

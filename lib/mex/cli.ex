@@ -19,7 +19,6 @@ defmodule Mex.CLI do
   def set_width(i), do: Application.put_env( :mex, :width, i )
 
   
-
   def to_columns_of_lines(pages) do
     pages
     |> Enum.map(&String.split(&1, "\n"))
@@ -37,7 +36,9 @@ defmodule Mex.CLI do
     Enum.map_join rows, "\n", &(Enum.join(&1, @joiner))
   end
 
-  def to_cells(cols, lines), do: lines |> Enum.map &cell(cols, &1)
+  def to_cells(cols, lines) do
+    lines |> Enum.map &cell(cols, &1)
+  end
   
   def cell(cols, text \\ "") do
     text
@@ -45,8 +46,16 @@ defmodule Mex.CLI do
     |> String.ljust( cell_width cols )         # and pad empty space.
   end
   
-  defp cell_width(cols), do: trunc print_width / Enum.count( cols )
-  defp print_width,      do: Application.get_env( :mex, :width ) || @width
-  defp maxlen(e),        do: Enum.reduce e, 0, &max( Enum.count(&1), &2 )
+  defp cell_width(cols) do
+    trunc print_width / Enum.count( cols )
+  end
+  
+  defp print_width do
+    Application.get_env( :mex, :width ) || @width
+  end
+  
+  defp maxlen(e) do
+    Enum.reduce e, 0, &max( Enum.count(&1), &2 )
+  end
   
 end
