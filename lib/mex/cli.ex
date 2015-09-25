@@ -16,7 +16,7 @@ defmodule Mex.CLI do
     IO.puts ANSI.format @head ++ [Enum.map_join(heads, "->", &cell(heads,&1))]
   end
 
-  def set_width(i), do: Application.put_env :mex, :width, i
+  def set_width(i), do: Application.put_env( :mex, :width, i )
 
   
 
