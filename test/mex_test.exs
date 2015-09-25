@@ -7,43 +7,7 @@ defmodule MexTest do
 
   import IO.ANSI, only: :functions
 
-  test "the truth" do
-    assert 1 + 1 == 2
-  end
-
-  
-  [:black, :red, :green, :yellow, :blue, :magenta, :cyan, :white]
-  |> Enum.with_index
-  |> Enum.map(fn {name, code}->{name, "\e[#{ code + 30 }m" } end)
-  |> Enum.each fn
-    {atom, code} ->
-      def unquote(atom)(str) do
-        unquote(code) <> str <> unquote( IO.ANSI.default_color )
-      end
-    
-  end
-
   def bold(str), do: bright <> str <> normal
-
-  def foo2 do
-    """
-    :red defmodule :default_color blag do
-      not real code dog
-    end
-    """
-  end
-
-  def foo do
-    """
-    defmodule blag do
-      not real code dog
-    end
-
-    otherline
-    otherone
-    """
-  end
-
 
   def regularize str do
     str
@@ -56,25 +20,12 @@ defmodule MexTest do
   def atomize( other ),       do: other <> " "
   
   test "mucking about with colors" do
-
-    #import Mex
-    #import Mex.CLI
-    
-    assert bold( blue("hey") <> " my homie ") <> "how are you?"
-    assert regularize foo2
-
-    #side_by_side [foo, foo2, foo ]
-    #textmex do
-    #  2+2
-    #end
+    assert bold( blue <> "hey" <> " my homie ") <> "how are you?"
+    assert regularize ":red :bright Red and bold :normal normal"
   end
 
-  test "rows_to_page works" do
-
-    import Mex.CLI
-
-    rows_to_page [["a","b"],["a","b"]]
-    
+  test "Mex can set_width of output" do
+    assert :ok = Mex.set_width 100
   end
-  
+
 end

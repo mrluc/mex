@@ -1,41 +1,52 @@
 defmodule Mex.CLI do
-
-  import IO.ANSI, only: :functions
+  alias IO.ANSI
   
-  @width 160
-  def side_by_side pages do
+  @width  80
+  @joiner ANSI.blue <> "| " <> ANSI.default_color
+  @head   [:black, :yellow_background ]
+  
+  def print_side_by_side pages do
+    IO.puts pages
+    |> to_columns_of_lines
+    |> to_rows_of_lines
+    |> to_page
+  end
+
+  def print_headers heads do
+    IO.puts ANSI.format @head ++ [Enum.map_join(heads, "->", &cell(heads,&1))]
+  end
+
+  def set_width(i), do: Application.put_env :mex, :width, i
+
+  
+
+  def to_columns_of_lines(pages) do
     pages
-    |> pages_to_columns
-    |> columns_to_rows
-    |> rows_to_page
-    |> IO.puts
-  end
-
-  def pages_to_columns(ls) do
-    Enum.map ls, fn txt ->
-      txt
-      |> String.split("\n")
-      |> Enum.map( &String.slice( &1, 0..(width(ls)-1) ))
-      |> Enum.map( &String.ljust( &1, width(ls) ))
-    end
+    |> Enum.map(&String.split(&1, "\n"))
+    |> Enum.map(&to_cells( pages, &1))
   end
   
-  def columns_to_rows cols do
-    len = cols |> Enum.reduce 0, &max(Enum.count(&1), &2)
-    Enum.map 0..len, fn i ->
-      Enum.map(cols, &Enum.at(&1, i, cell(cols)))
+  def to_rows_of_lines(cols) do
+    # turn into rows containing 'line i from each column'
+    Enum.map 0..maxlen(cols), fn i ->
+      Enum.map cols, &Enum.at(&1, i, cell(cols,""))
     end
   end
 
-  def rows_to_page(rs, t\\yellow, r\\default_color ) do
-    Enum.reduce rs, "", &(&2<> Enum.join(&1, "#{t}| #{r}") <>"\n")
-  end
-      
-  def at_index_in(i, cols, default) do
-    cols |> Enum.map(cols, &Enum.at(&1, i, default ))
+  def to_page(rows) do
+    Enum.map_join rows, "\n", &(Enum.join(&1, @joiner))
   end
 
-  defp cell(cols),  do: String.ljust "", width(cols)
-  defp width(cols), do: trunc @width / Enum.count( cols )
+  def to_cells(cols, lines), do: lines |> Enum.map &cell(cols, &1)
+  
+  def cell(cols, text \\ "") do
+    text
+    |> String.slice( 0..(cell_width(cols)-1) ) # truncate lines,
+    |> String.ljust( cell_width cols )         # and pad empty space.
+  end
+  
+  defp cell_width(cols), do: trunc print_width / Enum.count( cols )
+  defp print_width,      do: Application.get_env( :mex, :width ) || @width
+  defp maxlen(e),        do: Enum.reduce e, 0, &max( Enum.count(&1), &2 )
   
 end
