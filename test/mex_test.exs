@@ -1,3 +1,10 @@
+
+defmodule Prewalk do
+  def inspect_leaf_nodes tree do
+    tree |> Macro.prewalk &( (is_list(&1) && &1) || to_string(&1))
+  end
+end
+
 defmodule MexTest do
   import Kernel, except: [to_string: 1]
 
@@ -30,8 +37,16 @@ defmodule MexTest do
     import Mex
     require Integer
     
-    mex 3 do Integer.is_odd(3) end
+    mex 1 do Integer.is_odd(3) end
     
+  end
+
+  test "prewalk htmlify" do
+    import Prewalk
+    str = "name"
+
+    IO.inspect Prewalk.inspect_leaf_nodes [
+      [:a], [ [:b], 2, "thing" ], [ :c, [ :d, :e, [:f, :g]], :h]]
   end
 
 end

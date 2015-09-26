@@ -5,15 +5,15 @@ defmodule Mex.CLI do
   @joiner ANSI.blue <> "| " <> ANSI.default_color
   @head   [:black, :yellow_background ]
   
-  def print_side_by_side pages do
-    IO.puts pages
+  def side_by_side pages do
+    pages
     |> to_columns_of_lines
     |> to_rows_of_lines
     |> to_page
   end
 
-  def print_headers heads do
-    IO.puts ANSI.format @head ++ [Enum.map_join(heads, "->", &cell(heads,&1))]
+  def headers heads do
+    ANSI.format @head ++ [Enum.map_join(heads, "->", &cell(heads,&1))]
   end
 
   def set_width(i), do: Application.put_env( :mex, :width, i )

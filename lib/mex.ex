@@ -17,14 +17,16 @@ defmodule Mex do
   end
   
   def pp_compare node, env, expanders do
-    expanders
+    head = expanders
     |> Enum.map( &inspect/1 )
-    |> CLI.print_headers
+    |> CLI.headers
     
-    expanders
+    body = expanders
     |> Enum.map( &apply( &1, [node,env] ))    # or fn f -> f.( node, env ) end
     |> Enum.map( &Macro.to_string/1 )
-    |> CLI.print_side_by_side
+    |> CLI.side_by_side
+    
+    IO.puts [head, "\n", body]
   end
 
   def expand_all(n, env) do
