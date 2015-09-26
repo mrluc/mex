@@ -1,52 +1,42 @@
-
 defmodule Prewalk do
-  def inspect_leaf_nodes tree do
-    tree |> Macro.prewalk &( (is_list(&1) && &1) || to_string(&1))
+  def map_leaf_nodes tree, f do
+    tree |> Macro.prewalk &( (is_list(&1) && &1) || f.(&1))
   end
 end
 
 defmodule MexTest do
-  import Kernel, except: [to_string: 1]
-
-  
   use ExUnit.Case
   doctest Mex
-
-  import IO.ANSI, only: :functions
-
-  def bold(str), do: bright <> str <> normal
-
-  def regularize str do
-    str
-    |> String.split(" ")
-    |> Enum.map( &atomize/1 )
-    |> IO.ANSI.format(true)
-  end
-
-  def atomize( ":" <> rest ), do: String.to_atom( rest )
-  def atomize( other ),       do: other <> " "
   
-  test "mucking about with colors" do
-    assert bold( blue <> "hey" <> " my homie ") <> "how are you?"
-    assert regularize ":red :bright Red and bold :normal normal"
+  def quoted_nested_ifs do
+    quote do
+       if 2 do
+         if 3, do: "mouth-watering, honey-glazed ham"
+       end
+    end
   end
-
+  
   test "Mex can set_width of output" do
     assert :ok = Mex.set_width 100
-
-    import Mex
-    require Integer
-    
-    mex 1 do Integer.is_odd(3) end
-    
   end
 
-  test "prewalk htmlify" do
-    import Prewalk
-    str = "name"
+  test "mex can be given an integer argument" do
+    import Mex
+    require Integer
+    result = mex 4 do Integer.is_odd(3) end
+    assert :ok = result
+  end
 
-    IO.inspect Prewalk.inspect_leaf_nodes [
-      [:a], [ [:b], 2, "thing" ], [ :c, [ :d, :e, [:f, :g]], :h]]
+  test "our Macro.prewalk example works" do
+    assert Prewalk.map_leaf_nodes [[:a], [[:b],2,"thing"]], &Kernel.to_string(&1)
+  end
+
+  test "expand_all expands away nested ifs" do
+    assert false ==
+      quoted_nested_ifs
+      |> Mex.expand_all(__ENV__)
+      |> inspect                  # `if` would be :if
+      |> String.contains?("if")   #  which works
   end
 
 end

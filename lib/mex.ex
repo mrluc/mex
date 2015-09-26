@@ -12,7 +12,7 @@ defmodule Mex do
   ]
   
   defmacro mex( num \\ 0, do: node ) do
-    pp_compare node, __CALLER__, (Enum.at( @layouts, num) || List.first(@layouts, 1))
+    pp_compare node, __CALLER__, (Enum.at( @layouts, num) || List.first(@layouts))
     quote do: :ok
   end
   
@@ -25,7 +25,7 @@ defmodule Mex do
     |> Enum.map( &apply( &1, [node,env] ))    # or fn f -> f.( node, env ) end
     |> Enum.map( &Macro.to_string/1 )
     |> CLI.side_by_side
-    
+
     IO.puts [head, "\n", body]
   end
 
