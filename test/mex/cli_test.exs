@@ -1,9 +1,6 @@
-
-
 defmodule Mex.CLI.Test do
   use ExUnit.Case
-  doctest Mex.CLI
-  alias Mex.CLI
+
   import Mex.CLI
 
   test "headers() can handle array of strings" do

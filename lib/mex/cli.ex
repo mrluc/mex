@@ -24,7 +24,7 @@ defmodule Mex.CLI do
   
   # Implementation
   def columns_to_joined_lines cols do
-    0..maxlen(cols) |> Enum.map &get_joined_line(&1, cols)
+    0..maxlen(cols)-1 |> Enum.map &get_joined_line(&1, cols)
   end
 
   def get_joined_line i, cols do
@@ -33,9 +33,11 @@ defmodule Mex.CLI do
 
   def cell(text \\ "", cols) do
     w = trunc get_width / Enum.count(cols)
-    text |> String.slice(0..w-1) |> String.ljust(w) # trim & pad cell
+    text |> String.slice(0..w-1) |> String.ljust(w) |> err(text)
   end
-  
+
   defp maxlen(e), do: Enum.reduce(e, 0, &max(Enum.count(&1), &2))
+  defp err(str, "ExpansionError"<>_rest), do: ANSI.red <> str <> ANSI.reset
+  defp err(str, _), do: str
   
 end

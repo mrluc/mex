@@ -7,6 +7,7 @@ end
 defmodule MexTest do
   use ExUnit.Case
   doctest Mex
+  import Mex
   
   def quoted_nested_ifs do
     quote do
@@ -21,7 +22,6 @@ defmodule MexTest do
   end
 
   test "mex can be given an integer argument" do
-    import Mex
     require Integer
     result = mex 4 do Integer.is_odd(3) end
     assert :ok = result
@@ -31,12 +31,26 @@ defmodule MexTest do
     assert Prewalk.map_leaf_nodes [[:a], [[:b],2,"thing"]], &Kernel.to_string(&1)
   end
 
-  test "expand_all expands away nested ifs" do
+  test "expand_all expands recursively, tested with nested if expressions" do
     assert false ==
       quoted_nested_ifs
       |> Mex.expand_all(__ENV__)
       |> inspect                  # `if` would be :if
       |> String.contains?("if")   #  which works
+  end
+
+  test "mex handles expander failure" do
+    q = quote do
+      def foo, do: 1
+    end
+    assert {_pages, _errs} =
+      Mex.try_expansions q, __ENV__, [Mex.by_name(:all)]
+
+  end
+
+  test "mex understands named expanders" do
+    assert {_pages, _errs} =
+      Mex.try_expansions quoted_nested_ifs, __ENV__, [Mex.by_name(:all)]
   end
 
 end
