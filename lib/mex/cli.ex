@@ -24,7 +24,7 @@ defmodule Mex.CLI do
   
   # Implementation
   def columns_to_joined_lines cols do
-    0..maxlen(cols)-1 |> Enum.map &get_joined_line(&1, cols)
+    0..maxlen(cols)-1 |> Enum.map(&get_joined_line(&1, cols))
   end
 
   def get_joined_line i, cols do
